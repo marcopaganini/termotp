@@ -5,8 +5,11 @@ package main
 import (
 	"encoding/json"
 	"flag"
+	"fmt"
 	"log"
 	"os"
+	"path/filepath"
+	"time"
 
 	"github.com/jedib0t/go-pretty/v6/table"
 	"github.com/xlzd/gotp"
@@ -20,19 +23,57 @@ const (
 // this is filled in by the build process (make).
 var BuildVersion string
 
+// inputFile expands the glob passed as an argument and returns
+// the first file in the list, or the newest file if newest is set.
+func inputFile(fileglob string, newest bool) (string, error) {
+	files, err := filepath.Glob(fileglob)
+	if err != nil {
+		return "", err
+	}
+	if files == nil {
+		return "", fmt.Errorf("No input files match %q", fileglob)
+	}
+	if !newest {
+		return files[0], nil
+	}
+	// Find the file with the newest mtime and return.
+	var (
+		ntime time.Time
+		nfile string
+	)
+	for _, file := range files {
+		fi, err := os.Stat(file)
+		if err != nil {
+			return "", err
+		}
+		if fi.ModTime().After(ntime) {
+			ntime = fi.ModTime()
+			nfile = file
+		}
+	}
+	return nfile, nil
+}
+
 func main() {
 	var (
-		input = flag.String("input", "", "Input (encrypted) json file.")
+		flagInput  = flag.String("input", "", "Input (encrypted) json file glob.")
+		flagNewest = flag.Bool("newest", false, "If input expands to more than one file, use newest.")
 	)
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
 
 	flag.Parse()
 
-	if *input == "" {
+	input, err := inputFile(*flagInput, *flagNewest)
+	if err != nil {
+		log.Fatal(err)
+	}
+	log.Printf("Input file: %s", input)
+
+	if *flagInput == "" {
 		log.Fatal("Please specify input file with --input")
 	}
 
-	db, err := aegisDecrypt(*input)
+	db, err := aegisDecrypt(input)
 	if err != nil {
 		log.Fatal(err)
 	}
