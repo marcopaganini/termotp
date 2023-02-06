@@ -6,12 +6,12 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
-	"log"
 	"os"
 	"path/filepath"
 	"time"
 
 	"github.com/jedib0t/go-pretty/v6/table"
+	"github.com/romana/rlog"
 	"github.com/xlzd/gotp"
 )
 
@@ -23,18 +23,27 @@ const (
 // this is filled in by the build process (make).
 var BuildVersion string
 
-// inputFile expands the glob passed as an argument and returns
-// the first file in the list, or the newest file if newest is set.
-func inputFile(fileglob string, newest bool) (string, error) {
+// die logs a message with rlog.Critical and exists with a return code.
+func die(v ...any) {
+	rlog.Critical(v...)
+	os.Exit(1)
+}
+
+// dief logs a message with rlog.Critical and exists with a return code.
+//func dief(format string, v ...any) {
+//    rlog.Criticalf(format, v)
+//    os.Exit(1)
+//}
+
+// inputFile expands the glob passed as an argument and returns the file with
+// the most recent modification time in the list.
+func inputFile(fileglob string) (string, error) {
 	files, err := filepath.Glob(fileglob)
 	if err != nil {
 		return "", err
 	}
 	if files == nil {
 		return "", fmt.Errorf("No input files match %q", fileglob)
-	}
-	if !newest {
-		return files[0], nil
 	}
 	// Find the file with the newest mtime and return.
 	var (
@@ -56,27 +65,26 @@ func inputFile(fileglob string, newest bool) (string, error) {
 
 func main() {
 	var (
-		flagInput  = flag.String("input", "", "Input (encrypted) json file glob.")
-		flagNewest = flag.Bool("newest", false, "If input expands to more than one file, use newest.")
+		flagInput = flag.String("input", "", "Input (encrypted) json file glob.")
 	)
-	log.SetFlags(log.LstdFlags | log.Lshortfile)
 
 	flag.Parse()
 
-	input, err := inputFile(*flagInput, *flagNewest)
+	input, err := inputFile(*flagInput)
 	if err != nil {
-		log.Fatal(err)
+		die(err)
 	}
-	log.Printf("Input file: %s", input)
+	rlog.Debugf("Input file: %s", input)
 
 	if *flagInput == "" {
-		log.Fatal("Please specify input file with --input")
+		die("Please specify input file with --input")
 	}
 
 	db, err := aegisDecrypt(input)
 	if err != nil {
-		log.Fatal(err)
+		die(err)
 	}
+	rlog.Debugf("Decoded JSON:\n%s\n", string(db))
 
 	// Print entries.
 	tbl := table.NewWriter()
@@ -86,7 +94,7 @@ func main() {
 
 	plainJSON := aegisJSON{}
 	if err := json.Unmarshal(db, &plainJSON); err != nil {
-		log.Fatal(err)
+		die(err)
 	}
 	for _, entry := range plainJSON.Entries {
 		token := "Unknown OTP type: " + entry.Type

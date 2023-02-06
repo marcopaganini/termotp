@@ -4,6 +4,7 @@ go 1.19
 
 require (
 	github.com/jedib0t/go-pretty/v6 v6.4.4
+	github.com/romana/rlog v0.0.0-20220412051723-c08f605858a9
 	github.com/xlzd/gotp v0.1.0
 	golang.org/x/crypto v0.5.0
 	golang.org/x/term v0.4.0

@@ -10,9 +10,9 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"log"
 	"os"
 
+	"github.com/romana/rlog"
 	"golang.org/x/crypto/scrypt"
 	"golang.org/x/term"
 )
@@ -154,7 +154,7 @@ func aegisDecrypt(fname string) ([]byte, error) {
 		masterkey, err = aesgcm.Open(nil, nonce, ciphertext, nil)
 		if err != nil {
 			// Issue a warning only, but continue.
-			log.Print(err)
+			rlog.Debug(err)
 			continue
 		}
 		break
