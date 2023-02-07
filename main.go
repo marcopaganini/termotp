@@ -3,33 +3,33 @@
 package main
 
 import (
-	"encoding/json"
 	"flag"
 	"fmt"
 	"os"
 	"path/filepath"
+	"regexp"
 	"time"
 
 	"github.com/jedib0t/go-pretty/v6/table"
 	"github.com/romana/rlog"
-	"github.com/xlzd/gotp"
 )
 
 // BuildVersion holds the current git head version number.
 // this is filled in by the build process (make).
 var BuildVersion string
 
+// otpEntry holds the representation of the internal vault.
+type otpEntry struct {
+	issuer  string
+	account string
+	token   string
+}
+
 // die logs a message with rlog.Critical and exists with a return code.
 func die(v ...any) {
 	rlog.Critical(v...)
 	os.Exit(1)
 }
-
-// dief logs a message with rlog.Critical and exists with a return code.
-//func dief(format string, v ...any) {
-//    rlog.Criticalf(format, v)
-//    os.Exit(1)
-//}
 
 // inputFile expands the glob passed as an argument and returns the file with
 // the most recent modification time in the list.
@@ -66,14 +66,31 @@ func main() {
 
 	flag.Parse()
 
+	if *flagInput == "" {
+		die("Please specify input file with --input")
+	}
+
+	if len(flag.Args()) > 1 {
+		fmt.Println("Specify one or zero regular expressions to match.")
+		flag.PrintDefaults()
+		return
+	}
+
+	// Get input file from the input files glob.
 	input, err := inputFile(*flagInput)
 	if err != nil {
 		die(err)
 	}
 	rlog.Debugf("Input file: %s", input)
 
-	if *flagInput == "" {
-		die("Please specify input file with --input")
+	// By default, match everything (.) unless overriden by an argument.
+	r := "."
+	if len(flag.Args()) > 0 {
+		r = "(?i)" + flag.Args()[0]
+	}
+	rematch, err := regexp.Compile(r)
+	if err != nil {
+		die(err)
 	}
 
 	db, err := aegisDecrypt(input)
@@ -82,22 +99,24 @@ func main() {
 	}
 	rlog.Debugf("Decoded JSON:\n%s\n", string(db))
 
+	vault, err := filterAegisVault(db, rematch)
+	if err != nil {
+		die(err)
+	}
+
+	if len(vault) == 0 {
+		rlog.Info("No matching entries found.")
+		return
+	}
+
 	// Print entries.
 	tbl := table.NewWriter()
 	automerge := table.RowConfig{AutoMerge: true}
 
 	tbl.AppendHeader(table.Row{"Issuer", "Name", "OTP"}, automerge)
 
-	plainJSON := aegisJSON{}
-	if err := json.Unmarshal(db, &plainJSON); err != nil {
-		die(err)
-	}
-	for _, entry := range plainJSON.Entries {
-		token := "Unknown OTP type: " + entry.Type
-		if entry.Type == "totp" {
-			token = gotp.NewDefaultTOTP(entry.Info.Secret).Now()
-		}
-		tbl.AppendRow(table.Row{entry.Issuer, entry.Name, token}, automerge)
+	for _, v := range vault {
+		tbl.AppendRow(table.Row{v.issuer, v.account, v.token}, automerge)
 	}
 
 	// Emit table.

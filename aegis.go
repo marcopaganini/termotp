@@ -11,8 +11,10 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"regexp"
 
 	"github.com/romana/rlog"
+	"github.com/xlzd/gotp"
 	"golang.org/x/crypto/scrypt"
 	"golang.org/x/term"
 )
@@ -91,6 +93,33 @@ func readPassword() ([]byte, error) {
 		return nil, err
 	}
 	return []byte(password), nil
+}
+
+// filterAegisVault filters an Aegis plain JSON into our internal
+// representation of the vault, using "rematch" as a regular expression to
+// match the issuer or account.
+func filterAegisVault(plainJSON []byte, rematch *regexp.Regexp) ([]otpEntry, error) {
+	vault := &aegisJSON{}
+	if err := json.Unmarshal(plainJSON, &vault); err != nil {
+		return nil, err
+	}
+
+	ret := []otpEntry{}
+
+	for _, entry := range vault.Entries {
+		token := "Unknown OTP type: " + entry.Type
+		if entry.Type == "totp" {
+			token = gotp.NewDefaultTOTP(entry.Info.Secret).Now()
+		}
+		if rematch.MatchString(entry.Issuer) || rematch.MatchString(entry.Name) {
+			ret = append(ret, otpEntry{
+				issuer:  entry.Issuer,
+				account: entry.Name,
+				token:   token,
+			})
+		}
+	}
+	return ret, nil
 }
 
 // aegisDecrypt opens an encrypted Aegis JSON export file and
