@@ -17,6 +17,10 @@ import (
 	"golang.org/x/term"
 )
 
+const (
+	aegisKeyLen = 32
+)
+
 // aegisEncryptedJSON represents an encrypted Aegis JSON export file.
 type aegisEncryptedJSON struct {
 	Version int `json:"version"`
@@ -125,7 +129,7 @@ func aegisDecrypt(fname string) ([]byte, error) {
 			return nil, fmt.Errorf("Slot salt: %v", err)
 		}
 
-		key, err := scrypt.Key(password, salt, slot.N, slot.R, slot.P, keylen)
+		key, err := scrypt.Key(password, salt, slot.N, slot.R, slot.P, aegisKeyLen)
 		if err != nil {
 			return nil, err
 		}

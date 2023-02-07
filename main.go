@@ -15,10 +15,6 @@ import (
 	"github.com/xlzd/gotp"
 )
 
-const (
-	keylen = 32
-)
-
 // BuildVersion holds the current git head version number.
 // this is filled in by the build process (make).
 var BuildVersion string
