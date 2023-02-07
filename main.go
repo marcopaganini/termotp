@@ -60,6 +60,14 @@ func inputFile(fileglob string) (string, error) {
 }
 
 func main() {
+	// Usage prints the default usage for this program.
+	flag.Usage = func() {
+		_, program := filepath.Split(os.Args[0])
+		fmt.Fprintf(os.Stderr, "Usage:\n  %s [options] [matching_regexp]\n\n", program)
+		fmt.Fprintf(os.Stderr, "Options:\n")
+		flag.PrintDefaults()
+	}
+
 	var (
 		flagInput = flag.String("input", "", "Input (encrypted) json file glob.")
 	)
