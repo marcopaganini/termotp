@@ -8,6 +8,7 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
+	"sort"
 	"time"
 
 	"github.com/jedib0t/go-pretty/v6/table"
@@ -70,6 +71,7 @@ func main() {
 
 	var (
 		flagInput = flag.String("input", "", "Input (encrypted) json file glob.")
+		flagFuzzy = flag.Bool("fuzzy", false, "Use interactive fuzzy finder.")
 	)
 
 	flag.Parse()
@@ -107,27 +109,40 @@ func main() {
 	}
 	rlog.Debugf("Decoded JSON:\n%s\n", string(db))
 
+	// Filter and sort vault.
 	vault, err := filterAegisVault(db, rematch)
 	if err != nil {
 		die(err)
 	}
-
 	if len(vault) == 0 {
 		rlog.Info("No matching entries found.")
 		return
 	}
+	sort.Slice(vault, func(i, j int) bool {
+		key1 := vault[i].issuer + "/" + vault[i].account
+		key2 := vault[j].issuer + "/" + vault[j].account
+		return key1 > key2
+	})
 
-	// Print entries.
+	// Interactive fuzzy finder.
+	if *flagFuzzy {
+		token, err := fuzzyFind(vault)
+		if err != nil {
+			die(err)
+		}
+		fmt.Println(token)
+		return
+	}
+
+	// If no interactive mode requested, print a table by default.
 	tbl := table.NewWriter()
 	automerge := table.RowConfig{AutoMerge: true}
 
 	tbl.AppendHeader(table.Row{"Issuer", "Name", "OTP"}, automerge)
-
 	for _, v := range vault {
 		tbl.AppendRow(table.Row{v.issuer, v.account, v.token}, automerge)
 	}
 
-	// Emit table.
 	tbl.SortBy([]table.SortBy{
 		{Name: "Issuer", Mode: table.Asc},
 		{Name: "Name", Mode: table.Asc},
