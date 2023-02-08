@@ -28,7 +28,19 @@ type otpEntry struct {
 
 // die logs a message with rlog.Critical and exists with a return code.
 func die(v ...any) {
-	rlog.Critical(v...)
+	if v != nil {
+		rlog.Critical(v...)
+	}
+	os.Exit(1)
+}
+
+// usage prints a usage message, defaults for flags, and exits with error.
+func usage(s string) {
+	if s != "" {
+		fmt.Fprintf(os.Stderr, "Please specify input file with --input\n\n")
+	}
+	flag.Usage()
+	flag.PrintDefaults()
 	os.Exit(1)
 }
 
@@ -70,7 +82,7 @@ func main() {
 	}
 
 	var (
-		flagInput   = flag.String("input", "", "Input (encrypted) json file glob.")
+		flagInput   = flag.String("input", "", "Input (encrypted) JSON file glob.")
 		flagFuzzy   = flag.Bool("fuzzy", false, "Use interactive fuzzy finder.")
 		flagVersion = flag.Bool("version", false, "Show program version and exit.")
 	)
@@ -83,13 +95,11 @@ func main() {
 	}
 
 	if *flagInput == "" {
-		die("Please specify input file with --input")
+		usage("Please specify input file with --input")
 	}
 
 	if len(flag.Args()) > 1 {
-		fmt.Println("Specify one or zero regular expressions to match.")
-		flag.PrintDefaults()
-		return
+		usage("Specify one or zero regular expressions to match.")
 	}
 
 	// Get input file from the input files glob.
@@ -122,7 +132,7 @@ func main() {
 	}
 	if len(vault) == 0 {
 		rlog.Info("No matching entries found.")
-		return
+		os.Exit(1)
 	}
 	sort.Slice(vault, func(i, j int) bool {
 		key1 := vault[i].issuer + "/" + vault[i].account
