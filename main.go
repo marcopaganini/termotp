@@ -70,11 +70,17 @@ func main() {
 	}
 
 	var (
-		flagInput = flag.String("input", "", "Input (encrypted) json file glob.")
-		flagFuzzy = flag.Bool("fuzzy", false, "Use interactive fuzzy finder.")
+		flagInput   = flag.String("input", "", "Input (encrypted) json file glob.")
+		flagFuzzy   = flag.Bool("fuzzy", false, "Use interactive fuzzy finder.")
+		flagVersion = flag.Bool("version", false, "Show program version and exit.")
 	)
 
 	flag.Parse()
+
+	if *flagVersion {
+		fmt.Printf("Build Version: %s\n", BuildVersion)
+		return
+	}
 
 	if *flagInput == "" {
 		die("Please specify input file with --input")
