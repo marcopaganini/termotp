@@ -6,3 +6,6 @@ termotp
 
 # Vim stuff
 *.sw*
+
+# Other dirs
+arch/
