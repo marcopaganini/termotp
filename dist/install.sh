@@ -7,14 +7,14 @@ set -eu
 readonly PREFIX="/usr/local"
 
 die() {
-  echo >&2 "${ERR} ${*}"
+  echo >&2 "${*}"
   exit 1
 }
 
 main() {
   uid="$(id -u)"
   if [ "${uid}" -ne 0 ]; then
-    die "Please run this program as root (using sudo)"
+    die "Please run this program as root (using sudo)."
   fi
 
   bindir="${PREFIX}/bin"
