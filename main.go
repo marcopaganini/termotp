@@ -109,7 +109,7 @@ func main() {
 	}
 	rlog.Debugf("Input file: %s", input)
 
-	// By default, match everything (.) unless overriden by an argument.
+	// By default, match everything (.) unless overridden by an argument.
 	r := "."
 	if len(flag.Args()) > 0 {
 		r = "(?i)" + flag.Args()[0]
