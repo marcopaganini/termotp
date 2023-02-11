@@ -1,3 +1,5 @@
+[![Go Report Card](https://goreportcard.com/badge/github.com/marcopaganini/termotp)](https://goreportcard.com/report/github.com/marcopaganini/termotp)
+
 # termotp - A terminal OTP codes generator.
 
 ## Description
