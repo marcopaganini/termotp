@@ -20,7 +20,7 @@ To download and install the latest release, cut and paste the following shell co
 
 ```bash
 wget -q -O/tmp/install \
-  'https://raw.githubusercontent.com/marcopaganini/termotp/master/install.sh' && \
+  'https://raw.githubusercontent.com/marcopaganini/installer/master/install.sh' && \
   sudo sh /tmp/install marcopaganini/termotp
 ```
 
