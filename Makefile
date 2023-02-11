@@ -31,6 +31,8 @@ arch: Makefile ${src}
 	  go build -v -ldflags "-X main.Build=${git_tag}" -o "$${dst}/${bin}"; \
 	  [ -s LICENSE ] && install -m 644 LICENSE "$${dst}"; \
 	  [ -s README.md ] && install -m 644 README.md "$${dst}"; \
+	  [ -s dist/install.sh ] && install -m 755 dist/install.sh "$${dst}"; \
 	  [ -s docs/${bin}.1 ] && install -m 644 docs/${bin}.1 "$${dst}"; \
 	  tar -C "${archdir}" -zcvf "${archdir}/${bin}-$${GOOS}-$${GOARCH}.tar.gz" "$${dst##*/}"; \
+	  rm -rf "$${dst}"; \
 	done
