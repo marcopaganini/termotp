@@ -24,6 +24,8 @@ wget -q -O/tmp/install \
   sudo sh /tmp/install marcopaganini/termotp
 ```
 
+### Compile and install yourself
+
 If you have the Go compiler installed, just clone the repository and type `make`, followed by `make install`:
 
 ```bash
