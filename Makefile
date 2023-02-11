@@ -28,7 +28,7 @@ arch: Makefile ${src}
 	  dst="./${archdir}/$${GOOS}-$${GOARCH}"; \
 	  mkdir -p "$${dst}"; \
 	  echo "=== Building $${GOOS}/$${GOARCH} ==="; \
-	  go build -v -ldflags "-X main.Build=${git_tag}" -o "$${dst}/${bin}"; \
+	  CGO_ENABLED=0 go build -v -ldflags "-X main.BuildVersion=${git_tag}" -o "$${dst}/${bin}"; \
 	  [ -s LICENSE ] && install -m 644 LICENSE "$${dst}"; \
 	  [ -s README.md ] && install -m 644 README.md "$${dst}"; \
 	  [ -s dist/install.sh ] && install -m 755 dist/install.sh "$${dst}"; \
