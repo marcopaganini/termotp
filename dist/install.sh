@@ -21,7 +21,7 @@ main() {
 
   mkdir -p "${bindir}"
   cp termotp  "${bindir}"
-  chmod 744 "${bindir}/termotp"
+  chmod 755 "${bindir}/termotp"
 }
 
 main "${@}"
