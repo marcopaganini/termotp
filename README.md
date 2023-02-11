@@ -10,6 +10,12 @@ Future versions will read encrypted exports from other apps, such AndOTP and oth
 
 A regular expression allows the selection of a group of entries. If called without a regexp, **termotp** will show all entries.
 
+## Why another CLI/TUI based authenticator?
+
+Similar CLI/TUI applications exist, but most (if not all) of them focus on being a full HOTP/TOTP code generator. These applications keep a local database with the secrets and synchronization of tokens between the CLI application and your mobile app needs to be done manually (and in some cases, by adding the secrets directly). While some CLI applications offer *import* capabilities, not many can *export* into other formats. Even with import/export, both databases need to me synchronized carefully, or loss of data may occur.
+
+**termotp**'s main purpose is to use the export file from mobile apps *directly*. There are no other databases, no possibility of adding new codes via **termotp**, so no chance for data loss of synchronization issues. It also has both a CLI and a simple TUI mode, which not all alternatives offer.
+
 ## Installation
 
 There are a few ways to install **termotp**:
@@ -65,9 +71,12 @@ Add support for other OTP programs, like AndOTP, 2FA, etc. I'll proceed to do th
 
 ## Related and similar programs
 
-* Aegis authenticator for Android: http://getaegis.app
-* Syncthing (available for multiple OSes): http://syncthing.net
-* Similar program: [OTPCLient](https://github.com/paolostivanin/OTPClient) allows you to import different vault formats into its own encrypted vault. Has a graphical UI and a less capable CLI client.
+* [Aegis authenticator for Android](http://getaegis.app): It's my TOTP app of choice on Android (Lots of features and open source!)
+* [cotp](https://github.com/replydev/cotp): Capable TUI based OTP generator. Can import external files, but uses its own database on disk.
+* [OTPCLient](https://github.com/paolostivanin/OTPClient) allows you to import different vault formats into its own encrypted vault. Has a graphical UI and a less capable CLI client.
+* [oathtool](https://www.nongnu.org/oath-toolkit/): Bare bones CLI authenticator.
+* [2fa](https://github.com/rsc/2fa): Another bare bones OTP generator that uses its own database (manual import).
+* [Syncthing](http://syncthing.net): Allows you to sync files directly between multiple devices (including your phone.)
 
 ## Author
 
