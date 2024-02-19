@@ -59,9 +59,17 @@ Specifies the file or a glob matching more than one file holding the encrypted v
 
 E.g.: Specifying `--input="/backups/aegis/*.json"` (note the quotes) will cause **termotop** to use the latest file named `*.json` in the `/backup/aegis` directory.
 
+**--fzf**
+
+Uses [fzf](https://github.com/junegunn/fzf) to select the desired OTP. The `fzf` binary must be installed on the system.
+
 **--fuzzy**
 
 Without any special options, **termotp** shows a formatted table of your TOTP providers and the calculated tokens. This option shows a simple TUI with a fuzzy selector. Hitting enter on an entry will print the otp to the standard output.
+
+**--plain**
+
+Produces a plain listing of the vault.
 
 **---version**
 
