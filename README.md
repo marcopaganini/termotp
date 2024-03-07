@@ -71,6 +71,27 @@ Without any special options, **termotp** shows a formatted table of your TOTP pr
 
 Produces a plain listing of the vault.
 
+**--set-keyring**
+
+Read the password from the keyboard and write it to the keyring. This option causes all other options to be silently ignored.
+
+Under OS X, you'll need the `/usr/bin/security` binary to interface with the OS X keychain. This binary should be available by default.
+
+In Linux and BSD implementations, this depends on the [Secret Service](https://specifications.freedesktop.org/secret-service/latest/) dbus interface provided by [Gnome Keyring](https://wiki.gnome.org/Projects/GnomeKeyring). These implementations are installed and started by default on most modern distributions.
+
+Please note that this assumes that the `login` collection exists in the keyring (the default on most distros).  If it doesn't, use [Seahorse](https://wiki.gnome.org/Apps/Seahorse) to create it:
+
+* Open `seahorse`
+* Go to `File` > `New` > `Password Keyring`
+* Click `Continue`
+* When asked for a name, use `login`.
+
+**--use-keyring**
+
+Read the password from the `login` keyring (which should be open by default after login) instead of the keyboard. This allows passwordless operation while maintaining your vault encrypted.
+
+Make sure to write your password to the keyring with `--set-keyring` before using this option.
+
 **---version**
 
 Just print the current program version (or git commit number) and exit.
@@ -87,6 +108,11 @@ Add support for other OTP programs, like AndOTP, 2FA, etc. I'll proceed to do th
 * [oathtool](https://www.nongnu.org/oath-toolkit/): Bare bones CLI authenticator.
 * [2fa](https://github.com/rsc/2fa): Another bare bones OTP generator that uses its own database (manual import).
 * [Syncthing](http://syncthing.net): Allows you to sync files directly between multiple devices (including your phone.)
+
+## Thanks
+
+* https://github.com/zalando/ for their Keyring manipulation library.
+* https://github.com/sam-artuso for his ideas on using fzf (as an external program) and keyring.
 
 ## Author
 

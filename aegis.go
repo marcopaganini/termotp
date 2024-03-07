@@ -124,7 +124,7 @@ func filterAegisVault(plainJSON []byte, rematch *regexp.Regexp) ([]otpEntry, err
 
 // aegisDecrypt opens an encrypted Aegis JSON export file and
 // returns the plain json contents.
-func aegisDecrypt(fname string) ([]byte, error) {
+func aegisDecrypt(fname string, password []byte) ([]byte, error) {
 	buf, err := os.ReadFile(fname)
 	if err != nil {
 		return nil, err
@@ -135,14 +135,9 @@ func aegisDecrypt(fname string) ([]byte, error) {
 		return nil, err
 	}
 
-	var masterkey []byte
-	password, err := readPassword()
-	if err != nil {
-		return nil, err
-	}
-
 	// Extract all master key slots from header.
 	// Exit when a valid masterkey has been found.
+	var masterkey []byte
 	for _, slot := range encJSON.Header.Slots {
 		var (
 			nonce   []byte

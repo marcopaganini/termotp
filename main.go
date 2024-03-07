@@ -18,6 +18,7 @@ import (
 	"github.com/jedib0t/go-pretty/v6/table"
 	"github.com/jedib0t/go-pretty/v6/text"
 	"github.com/romana/rlog"
+	"github.com/zalando/go-keyring"
 )
 
 // BuildVersion holds the current git head version number.
@@ -31,13 +32,21 @@ type otpEntry struct {
 	token   string
 }
 
+// Keyring constants. User is not your user.
+const (
+	keyRingService = "termotp"
+	keyRingUser    = "anon"
+)
+
 // cmdLineFlags contains the command-line flags.
 type cmdLineFlags struct {
-	input   string
-	fuzzy   bool
-	fzf     bool
-	plain   bool
-	version bool
+	input      string
+	fuzzy      bool
+	fzf        bool
+	plain      bool
+	setkeyring bool
+	usekeyring bool
+	version    bool
 }
 
 // die logs a message with rlog.Critical and exits with a return code.
@@ -142,8 +151,15 @@ func parseFlags() (cmdLineFlags, error) {
 	flag.BoolVar(&flags.fzf, "fzf", false, "Use fzf (needs external binary in path).")
 	flag.BoolVar(&flags.plain, "plain", false, "Use plain output (disables fuzzy finder and tabular output.)")
 	flag.BoolVar(&flags.version, "version", false, "Show program version and exit.")
+	flag.BoolVar(&flags.setkeyring, "set-keyring", false, "Set the keyring password and exit.")
+	flag.BoolVar(&flags.usekeyring, "use-keyring", false, "Use keyring stored password.")
 
 	flag.Parse()
+
+	// --setkeyring requires nothing else.
+	if flags.setkeyring {
+		return flags, nil
+	}
 
 	if flags.version {
 		fmt.Printf("Build Version: %s\n", BuildVersion)
@@ -213,6 +229,19 @@ func fzf(table string) (string, error) {
 	return f[len(f)-1], nil
 }
 
+// setkeyring asks for a password and write it to the keyring.
+func setkeyring() error {
+	password, err := readPassword()
+	if err != nil {
+		return err
+	}
+
+	if err = keyring.Set(keyRingService, keyRingUser, string(password)); err != nil {
+		return err
+	}
+	return nil
+}
+
 func main() {
 	// Usage prints the default usage for this program.
 	flag.Usage = func() {
@@ -225,6 +254,15 @@ func main() {
 	flags, err := parseFlags()
 	if err != nil {
 		die(err)
+	}
+
+	if flags.setkeyring {
+		fmt.Println("Please enter the password to be stored in the keyring.")
+		if err := setkeyring(); err != nil {
+			die(err)
+		}
+		fmt.Println("Password set. Use --use-keyring to read the password from the keyring.")
+		os.Exit(0)
 	}
 
 	// Get input file from the input files glob.
@@ -244,7 +282,23 @@ func main() {
 		die(err)
 	}
 
-	db, err := aegisDecrypt(input)
+	// Read password (from keyboard or keyring) and decrypt aegis vault.
+	var (
+		password []byte
+		secret   string
+	)
+
+	if flags.usekeyring {
+		secret, err = keyring.Get(keyRingService, keyRingUser)
+		password = []byte(secret)
+	} else {
+		password, err = readPassword()
+	}
+	if err != nil {
+		die(err)
+	}
+
+	db, err := aegisDecrypt(input, password)
 	if err != nil {
 		die(err)
 	}
