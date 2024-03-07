@@ -112,7 +112,7 @@ Add support for other OTP programs, like AndOTP, 2FA, etc. I'll proceed to do th
 ## Thanks
 
 * https://github.com/zalando/ for their Keyring manipulation library.
-* https://github.com/sam-artuso for his ideas on using fzf (as an external program) and keyring.
+* https://github.com/sam-artuso for his ideas on using fzf (as an external program) and keyring support.
 
 ## Author
 
