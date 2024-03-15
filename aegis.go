@@ -12,6 +12,7 @@ import (
 	"fmt"
 	"os"
 	"regexp"
+	"strings"
 
 	"github.com/romana/rlog"
 	"github.com/xlzd/gotp"
@@ -79,18 +80,39 @@ func newAES(key []byte) (cipher.AEAD, error) {
 	return aesgcm, nil
 }
 
-// readPassword reads the user password from the terminal.
+// readPassword reads the user password from the terminal.  If the input is a
+// terminal, it uses terminal specific codes to turn off typing echo. If the
+// input is not a terminal, it assumes we can read the password directly from
+// it (E.g, when redirecting from a process or a file.)
 func readPassword() ([]byte, error) {
-	savedState, err := term.MakeRaw(int(os.Stdin.Fd()))
+	fi, err := os.Stdin.Stat()
 	if err != nil {
 		return nil, err
 	}
-	defer term.Restore(int(os.Stdin.Fd()), savedState)
 
-	terminal := term.NewTerminal(os.Stdin, ">")
-	password, err := terminal.ReadPassword("Enter password: ")
-	if err != nil {
-		return nil, err
+	// Test if we're reading from pipe or terminal.
+
+	var password string
+	if (fi.Mode() & os.ModeCharDevice) != 0 {
+		// Reading from terminal.
+		savedState, err := term.MakeRaw(int(os.Stdin.Fd()))
+		if err != nil {
+			return nil, err
+		}
+		defer term.Restore(int(os.Stdin.Fd()), savedState)
+
+		terminal := term.NewTerminal(os.Stdin, ">")
+		password, err = terminal.ReadPassword("Enter password: ")
+		if err != nil {
+			return nil, err
+		}
+	} else {
+		// 256-byte passwords ought to be enough for everybody :)
+		buf := make([]byte, 256)
+		if _, err := os.Stdin.Read(buf); err != nil {
+			return nil, err
+		}
+		password = strings.TrimRight(string(buf), "\r\n\x00")
 	}
 	return []byte(password), nil
 }
