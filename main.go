@@ -116,15 +116,22 @@ func outputTable(vault []otpEntry, flags cmdLineFlags) string {
 		TopSeparator:     "",
 		UnfinishedRow:    "",
 	}
-	stylePlain := table.StyleDefault
-	stylePlain.Box = styleBoxPlain
 
+	// Default style is "light" unless --fzf or --plan output requested.
 	tbl.SetStyle(table.StyleLight)
 	if flags.plain {
+		stylePlain := table.StyleDefault
+		stylePlain.Box = styleBoxPlain
 		tbl.SetStyle(stylePlain)
 	}
 
-	// Don't use headers (or automerge) in the output for FZF.
+	// Don't automerge if plain or fzf.
+	automerge := true
+	if flags.plain || flags.fzf {
+		automerge = false
+	}
+
+	// Don't use headers in the output for fzf.
 	if !flags.fzf {
 		tbl.AppendHeader(table.Row{"Issuer", "Name", "OTP"})
 	}
@@ -137,7 +144,7 @@ func outputTable(vault []otpEntry, flags cmdLineFlags) string {
 		{Name: "Issuer", Mode: table.Asc},
 		{Name: "Name", Mode: table.Asc},
 	})
-	tbl.SetColumnConfigs([]table.ColumnConfig{{Number: 1, AutoMerge: !flags.fzf}})
+	tbl.SetColumnConfigs([]table.ColumnConfig{{Number: 1, AutoMerge: automerge}})
 	tbl.Style().Options.SeparateRows = false
 	return tbl.Render()
 }
