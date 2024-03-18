@@ -67,6 +67,10 @@ Uses [fzf](https://github.com/junegunn/fzf) to select the desired OTP. The `fzf`
 
 Without any special options, **termotp** shows a formatted table of your TOTP providers and the calculated tokens. This option shows a simple TUI with a fuzzy selector. Hitting enter on an entry will print the otp to the standard output.
 
+**--json**
+
+Emits the output in JSON format.
+
 **--plain**
 
 Produces a plain listing of the vault.
@@ -112,7 +116,7 @@ Add support for other OTP programs, like AndOTP, 2FA, etc. I'll proceed to do th
 ## Thanks
 
 * https://github.com/zalando/ for their Keyring manipulation library.
-* https://github.com/sam-artuso for his ideas on using fzf (as an external program) and keyring support.
+* https://github.com/sam-artuso and http://github.com/timkgh for their great feature requests.
 
 ## Author
 

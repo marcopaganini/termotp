@@ -135,9 +135,9 @@ func filterAegisVault(plainJSON []byte, rematch *regexp.Regexp) ([]otpEntry, err
 		}
 		if rematch.MatchString(entry.Issuer) || rematch.MatchString(entry.Name) {
 			ret = append(ret, otpEntry{
-				issuer:  entry.Issuer,
-				account: entry.Name,
-				token:   token,
+				Issuer:  entry.Issuer,
+				Account: entry.Name,
+				Token:   token,
 			})
 		}
 	}

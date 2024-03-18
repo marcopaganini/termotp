@@ -4,6 +4,7 @@
 package main
 
 import (
+	"encoding/json"
 	"errors"
 	"flag"
 	"fmt"
@@ -27,9 +28,9 @@ var BuildVersion string
 
 // otpEntry holds the representation of the internal vault.
 type otpEntry struct {
-	issuer  string
-	account string
-	token   string
+	Issuer  string
+	Account string
+	Token   string
 }
 
 // Keyring constants. User is not your user.
@@ -44,6 +45,7 @@ type cmdLineFlags struct {
 	fuzzy      bool
 	fzf        bool
 	plain      bool
+	json       bool
 	setkeyring bool
 	usekeyring bool
 	version    bool
@@ -137,7 +139,7 @@ func outputTable(vault []otpEntry, flags cmdLineFlags) string {
 	}
 
 	for _, v := range vault {
-		tbl.AppendRow(table.Row{v.issuer, v.account, v.token})
+		tbl.AppendRow(table.Row{v.Issuer, v.Account, v.Token})
 	}
 
 	tbl.SortBy([]table.SortBy{
@@ -149,6 +151,15 @@ func outputTable(vault []otpEntry, flags cmdLineFlags) string {
 	return tbl.Render()
 }
 
+// outputJSON outputs a JSON representation of the decrypted vault.
+func outputJSON(vault []otpEntry) (string, error) {
+	output, err := json.Marshal(vault)
+	if err != nil {
+		return "", err
+	}
+	return string(output), nil
+}
+
 // parseFlags parses the command line flags and returns a cmdLineFlag struct.
 func parseFlags() (cmdLineFlags, error) {
 	flags := cmdLineFlags{}
@@ -156,6 +167,7 @@ func parseFlags() (cmdLineFlags, error) {
 	flag.StringVar(&flags.input, "input", "", "Input (encrypted) JSON file glob.")
 	flag.BoolVar(&flags.fuzzy, "fuzzy", false, "Use interactive fuzzy finder.")
 	flag.BoolVar(&flags.fzf, "fzf", false, "Use fzf (needs external binary in path).")
+	flag.BoolVar(&flags.json, "json", false, "Use JSON output.")
 	flag.BoolVar(&flags.plain, "plain", false, "Use plain output (disables fuzzy finder and tabular output.)")
 	flag.BoolVar(&flags.version, "version", false, "Show program version and exit.")
 	flag.BoolVar(&flags.setkeyring, "set-keyring", false, "Set the keyring password and exit.")
@@ -180,7 +192,7 @@ func parseFlags() (cmdLineFlags, error) {
 
 	// Only one output format allowed.
 	n := 0
-	for _, v := range []bool{flags.plain, flags.fuzzy, flags.fzf} {
+	for _, v := range []bool{flags.fuzzy, flags.fzf, flags.json, flags.plain} {
 		if v {
 			n++
 		}
@@ -321,8 +333,8 @@ func main() {
 		os.Exit(1)
 	}
 	sort.Slice(vault, func(i, j int) bool {
-		key1 := vault[i].issuer + "/" + vault[i].account
-		key2 := vault[j].issuer + "/" + vault[j].account
+		key1 := vault[i].Issuer + "/" + vault[i].Account
+		key2 := vault[j].Issuer + "/" + vault[j].Account
 		return key1 > key2
 	})
 
@@ -342,6 +354,12 @@ func main() {
 			die(err)
 		}
 		fmt.Println(t)
+	case flags.json:
+		output, err := outputJSON(vault)
+		if err != nil {
+			die(err)
+		}
+		fmt.Println(output)
 	default:
 		fmt.Println(outputTable(vault, flags))
 	}
