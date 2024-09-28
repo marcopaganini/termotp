@@ -35,11 +35,10 @@ upx:
     compress: best
 
 nfpms:
-  - package_name: rpn
-    homepage: https://github.com/marcopaganini/rpn
+  - homepage: https://github.com/marcopaganini/termotp
     maintainer: Marco Paganini <paganini@paganini.net>
     description: |-
-      A simple but useful CLI RPN calculator.
+      termotp - A terminal OTP codes generator.
     license: MIT
     formats:
       - apk
@@ -47,13 +46,13 @@ nfpms:
       - rpm
       - archlinux
     provides:
-      - rpn
+      - termotp
     bindir: /usr/bin
     contents:
       - src: README.md
-        dst: /usr/share/doc/rpn/README.md
+        dst: /usr/share/doc/termotp/README.md
       - src: LICENSE
-        dst: /usr/share/doc/rpn/LICENSE.txt
+        dst: /usr/share/doc/termotp/LICENSE.txt
 
 changelog:
   sort: asc
