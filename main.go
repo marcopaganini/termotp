@@ -22,9 +22,9 @@ import (
 	"github.com/zalando/go-keyring"
 )
 
-// BuildVersion holds the current git head version number.
+// Build holds the current git head version number.
 // this is filled in by the build process (make).
-var BuildVersion string
+var Build string
 
 // otpEntry holds the representation of the internal vault.
 type otpEntry struct {
@@ -181,7 +181,7 @@ func parseFlags() (cmdLineFlags, error) {
 	}
 
 	if flags.version {
-		fmt.Printf("Build Version: %s\n", BuildVersion)
+		fmt.Printf("Build Version: %s\n", Build)
 		os.Exit(0)
 	}
 

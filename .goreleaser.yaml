@@ -1,0 +1,63 @@
+# yaml-language-server: $schema=https://goreleaser.com/static/schema.json
+# vim: set ts=2 sw=2 tw=0 fo=cnqoj
+
+version: 2
+
+before:
+  hooks:
+    # You may remove this if you don't use go modules.
+    - go mod tidy
+    # you may remove this if you don't need go generate
+    - go generate ./...
+
+builds:
+  - env:
+      - CGO_ENABLED=0
+    goos:
+      - linux
+      - windows
+      - darwin
+    ldflags:
+      - -s -w -X main.Build={{.Version}}
+
+archives:
+  - format: tar.gz
+    files:
+      - LICENSE
+      - README.md
+    # use zip for windows archives
+    format_overrides:
+      - goos: windows
+        format: zip
+
+upx:
+  - enabled: true
+    compress: best
+
+nfpms:
+  - package_name: rpn
+    homepage: https://github.com/marcopaganini/rpn
+    maintainer: Marco Paganini <paganini@paganini.net>
+    description: |-
+      A simple but useful CLI RPN calculator.
+    license: MIT
+    formats:
+      - apk
+      - deb
+      - rpm
+      - archlinux
+    provides:
+      - rpn
+    bindir: /usr/bin
+    contents:
+      - src: README.md
+        dst: /usr/share/doc/rpn/README.md
+      - src: LICENSE
+        dst: /usr/share/doc/rpn/LICENSE.txt
+
+changelog:
+  sort: asc
+  filters:
+    exclude:
+      - "^docs:"
+      - "^test:"

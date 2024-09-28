@@ -22,14 +22,23 @@ Similar CLI/TUI applications exist, but most (if not all) of them focus on being
 
 There are a few ways to install **termotp**:
 
-### Download from releases
+### Direct download from releases
 
-To download and install the latest release, cut and paste the following shell command:
+To download and install the latest release into `/usr/local/bin` (requires
+root), cut and paste the following shell command:
 
 ```bash
-wget -q -O/tmp/install \
-  'https://raw.githubusercontent.com/marcopaganini/installer/master/install.sh' && \
-  sudo sh /tmp/install marcopaganini/termotp
+curl -s \
+  'https://raw.githubusercontent.com/marcopaganini/termotp/master/install.sh' |
+  sudo sh -s -- marcopaganini/termotp
+```
+
+To download and install the latest release into another directory (say, `~/.local/bin`):
+
+```bash
+curl -s \
+  'https://raw.githubusercontent.com/marcopaganini/termotp/master/install.sh' |
+  sh -s -- marcopaganini/termotp "${HOME}/.local/bin"
 ```
 
 ### Compile and install yourself
@@ -42,6 +51,11 @@ cd termotp
 make
 sudo make install
 ```
+
+### Linux packages
+
+You'll also find packages for multiple distributions (DEB/RPM/APK files, etc) in the
+[Releases](https://github.com/marcopaganini/termotp/releases/) are of the repository.
 
 ## Usage
 
