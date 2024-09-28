@@ -79,7 +79,7 @@ main() {
   echo "${OK} Your architecture is: ${arch}"
   echo "${OK} Install directory: ${install_dir}"
 
-  tgz="${release_name}_[0-9].[0-9].[0-9]_${os}_${arch}.tar.gz"
+  tgz="${release_name}_[0-9]\\+\\.[0-9]\\_\\.[0-9]\\+_${os}_${arch}\\.tar\\.gz"
 
   # Retrieve the list releases from github (this is hacky but we don't
   # want to force people to have a proper JSON parser installed.)
