@@ -67,7 +67,7 @@ func inputFile(fileglob string) (string, error) {
 		return "", err
 	}
 	if files == nil {
-		return "", fmt.Errorf("No input files match %q", fileglob)
+		return "", fmt.Errorf("no input files match %q", fileglob)
 	}
 	// Find the file with the newest mtime and return.
 	var (
@@ -187,7 +187,7 @@ func parseFlags() (cmdLineFlags, error) {
 
 	// Flag sanity checking.
 	if flags.input == "" {
-		return cmdLineFlags{}, errors.New("Please specify input file with --input")
+		return cmdLineFlags{}, errors.New("please specify input file with --input")
 	}
 
 	// Only one output format allowed.
@@ -198,11 +198,11 @@ func parseFlags() (cmdLineFlags, error) {
 		}
 	}
 	if n > 1 {
-		return cmdLineFlags{}, errors.New("Please only specify ONE output format.")
+		return cmdLineFlags{}, errors.New("please only specify ONE output format")
 	}
 
 	if len(flag.Args()) > 1 {
-		return cmdLineFlags{}, errors.New("Specify one or zero regular expressions to match.")
+		return cmdLineFlags{}, errors.New("specify one or zero regular expressions to match")
 	}
 
 	// FZF uses plain output, with modifications (no headers, no automerge)
