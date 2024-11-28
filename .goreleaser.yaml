@@ -30,10 +30,6 @@ archives:
       - goos: windows
         format: zip
 
-upx:
-  - enabled: true
-    compress: best
-
 nfpms:
   - homepage: https://github.com/marcopaganini/termotp
     maintainer: Marco Paganini <paganini@paganini.net>
