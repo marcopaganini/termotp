@@ -172,7 +172,7 @@ func aegisDecrypt(fname string, password []byte) ([]byte, error) {
 			continue
 		}
 		if salt, err = hex.DecodeString(slot.Salt); err != nil {
-			return nil, fmt.Errorf("Slot salt: %v", err)
+			return nil, fmt.Errorf("slot salt: %v", err)
 		}
 
 		key, err := scrypt.Key(password, salt, slot.N, slot.R, slot.P, aegisKeyLen)
@@ -187,13 +187,13 @@ func aegisDecrypt(fname string, password []byte) ([]byte, error) {
 		}
 
 		if nonce, err = hex.DecodeString(slot.KeyParams.Nonce); err != nil {
-			return nil, fmt.Errorf("Slot nonce: %v", err)
+			return nil, fmt.Errorf("slot nonce: %v", err)
 		}
 		if tag, err = hex.DecodeString(slot.KeyParams.Tag); err != nil {
-			return nil, fmt.Errorf("Slot tag: %v", err)
+			return nil, fmt.Errorf("slot tag: %v", err)
 		}
 		if keyslot, err = hex.DecodeString(slot.Key); err != nil {
-			return nil, fmt.Errorf("Slot key: %v", err)
+			return nil, fmt.Errorf("slot key: %v", err)
 		}
 
 		// ciphertext := keyslot + tag
@@ -211,7 +211,7 @@ func aegisDecrypt(fname string, password []byte) ([]byte, error) {
 	}
 
 	if len(masterkey) == 0 {
-		return nil, errors.New("Unable to decrypt the master key with the given password")
+		return nil, errors.New("unable to decrypt the master key with the given password")
 	}
 
 	// Decode DB contents.
@@ -228,11 +228,11 @@ func aegisDecrypt(fname string, password []byte) ([]byte, error) {
 
 	nonce, err := hex.DecodeString(encJSON.Header.Params.Nonce)
 	if err != nil {
-		return nil, fmt.Errorf("Params nonce: %v", err)
+		return nil, fmt.Errorf("params nonce: %v", err)
 	}
 	tag, err := hex.DecodeString(encJSON.Header.Params.Tag)
 	if err != nil {
-		return nil, fmt.Errorf("Params tag: %v", err)
+		return nil, fmt.Errorf("params tag: %v", err)
 	}
 
 	data := append(content, tag...)

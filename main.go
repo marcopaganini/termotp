@@ -128,7 +128,7 @@ func outputTable(vault []otpEntry, flags cmdLineFlags) string {
 	}
 
 	// Don't automerge if plain or fzf.
-	automerge := true
+	var automerge = true
 	if flags.plain || flags.fzf {
 		automerge = false
 	}
